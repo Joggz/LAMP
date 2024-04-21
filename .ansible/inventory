@@ -1,0 +1,4 @@
+
+[slave]
+192.168.56.4 
+#ansible_user=vagrant

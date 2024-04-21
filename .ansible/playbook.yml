@@ -1,0 +1,38 @@
+---
+- name: Copy and run script
+  hosts: slave
+  tasks:
+    - name: Copy script from master to slave
+      ansible.builtin.copy:
+        src: ~/lamp/deploy_script.sh
+        dest: ~/
+        owner: vagrant
+        mode: 0755
+       # remote_src: yes
+     # delegate_to: localhost
+
+    - name: Run script on slave
+      ansible.builtin.shell: ~/deploy_script.sh
+
+    - name: Add cron job
+      ansible.builtin.cron:
+        name: "Check server uptime"
+        user: "vagrant"
+        job: "uptime >> /var/log/server_uptime.log"
+        minute: "0"
+        hour: "0"
+        cron_file: server_uptime_check
+
+#    - name: Verify PHP application accessibility
+#      ansible.builtin.wait_for:
+#        host: 192.168.56.4
+#        port: 80
+#        state: started
+#        timeout: 60
+#       delay: 5
+#      register: result
+
+#    - name: Print result
+#      debug:
+#        msg: "PHP application is {{ 'accessible' if result.elapsed <= 60 else 'inaccessible' }}"
+
