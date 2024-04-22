@@ -11,18 +11,30 @@
        # remote_src: yes
      # delegate_to: localhost
 
-    - name: Run script on slave
-      ansible.builtin.shell: ~/deploy_script.sh
+#    - name: Run script on slave
+#      ansible.builtin.shell: ~/deploy_script.sh
 
     - name: Add cron job
       ansible.builtin.cron:
         name: "Check server uptime"
-        user: "vagrant"
-        job: "uptime >> /var/log/server_uptime.log"
+        user: "root"
+        job: "/usr/bin/uptime >> /var/log/server_uptime.log"
         minute: "0"
         hour: "0"
-        cron_file: server_uptime_check
+        state: "present"
+#        cron_file:  /etc/cron.d/server_uptime_check   
+      become: true
 
+    - name:  Verify PHP applicarion accesinitlity
+      uri:
+        url: http://192.168.56.4
+      register: php_status
+      ignore_errors: true
+
+    - name:  Display accesibility message
+      debug:
+        msg:  "PHP is available on the machine"
+      when: php_status.status = 200
 #    - name: Verify PHP application accessibility
 #      ansible.builtin.wait_for:
 #        host: 192.168.56.4
